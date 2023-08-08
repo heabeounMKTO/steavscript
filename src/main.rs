@@ -1,6 +1,7 @@
 use std::env;
 mod file_utils;
 mod lexing;
+mod utils;
 use file_utils::loading;
 
 
