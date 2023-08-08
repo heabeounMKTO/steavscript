@@ -30,7 +30,7 @@ pub enum Token {
 impl Token {
     pub fn keywords(value: &str) -> Option<Self> {
         match value {
-            "LekKutToch" => Some(Self::LekKutToch),
+            "LekKutToch" => Some(Self::LekKutToch(value.parse().unwrap())),
             "Talob" => Some(Self::Talob),
             _ => None
         }
