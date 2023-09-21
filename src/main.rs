@@ -16,9 +16,9 @@ fn main() {
     let parse_args = CliArguments::parse();
     match parse_args.file.as_str() {
         "interp" => loop {
+           print!(">>");
             let stdin = io::stdin();
             let line = stdin.lock().lines().next().unwrap();
-            // let mut input = InputStream::new(stdin.lock());
             let runner: RunBeltei = RunBeltei{
                 mode: BelteiMode::Interpreter,
                 buffer: line.unwrap()

@@ -17,13 +17,13 @@ impl RunBeltei {
     pub fn run_file(&self) -> Result<(), Error>{
         let f = File::open(&self.buffer)?;
         let mut reader = BufReader::new(f);
-        // println!("{:?}", &reader.lines());
         for line in reader.lines() {
             run(&line?).unwrap();
         }
         Ok(()) 
     }
     pub fn run_line(&self) -> Result<(), Error>{
+
        run(&self.buffer).unwrap();
        Ok(())
     }
