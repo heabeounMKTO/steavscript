@@ -4,6 +4,7 @@ use clap::Parser;
 use bscript_parser::read_bs::read_bscript;
 use bscript::implmode::{RunBeltei, BelteiMode};
 use std::io;
+use std::io::BufRead;
 use input_stream::InputStream;
 #[derive(Parser, Debug)]
 struct CliArguments {
@@ -14,12 +15,13 @@ struct CliArguments {
 fn main() {
     let parse_args = CliArguments::parse();
     match parse_args.file.as_str() {
-        "interp" => {
+        "interp" => loop {
             let stdin = io::stdin();
-            let mut input = InputStream::new(stdin.lock());
+            let line = stdin.lock().lines().next().unwrap();
+            // let mut input = InputStream::new(stdin.lock());
             let runner: RunBeltei = RunBeltei{
                 mode: BelteiMode::Interpreter,
-                buffer: input.scan().expect("cannot read from stdio")
+                buffer: line.unwrap()
             }; 
             runner.run_line().unwrap();
         },
