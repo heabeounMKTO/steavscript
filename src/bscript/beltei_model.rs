@@ -1,9 +1,9 @@
 pub enum BelteiPrim {
     Number,
-    String
+    String,
 }
 
 pub enum BelteiMode {
     FromFile,
-    Interpreter
+    Interpreter,
 }
