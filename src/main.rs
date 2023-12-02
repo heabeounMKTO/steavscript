@@ -16,7 +16,7 @@ fn main() {
     let parse_args = CliArguments::parse();
     match parse_args.file.as_str() {
         "interp" => loop {
-           print!(">>");
+           print!("beltei_interp>>");
             let stdin = io::stdin();
             let line = stdin.lock().lines().next().unwrap();
             let runner: RunBeltei = RunBeltei{
