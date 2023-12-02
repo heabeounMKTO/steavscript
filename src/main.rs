@@ -1,5 +1,7 @@
 mod bscript;
 mod bscript_parser;
+
+
 use bscript::implmode::{BelteiMode, RunBeltei};
 use bscript_parser::read_bs::read_bscript;
 use clap::Parser;
@@ -12,10 +14,10 @@ struct CliArguments {
     file: String,
 }
 
+
 fn main() {
     let parse_args = CliArguments::parse();
     match parse_args.file.as_str() {
-        
         "interp" => loop {
            print!(">>");
             let stdin = io::stdin();

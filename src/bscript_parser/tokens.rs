@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub enum BscriptTokenType {
     // symbols
     bsKhan, // SEMICOLON (end of line)
@@ -56,5 +57,11 @@ pub enum BscriptTokenType {
 pub struct BscriptToken {
     pub token_type: BscriptTokenType,
     pub lexeme: String,
-    pub line: int64
+    pub line: i64
+}
+
+impl BscriptToken {
+    pub fn toString(&self) -> String {
+        format!("{:?} {} {}", &self.token_type, &self.lexeme, &self.line)
+    }
 }
