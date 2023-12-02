@@ -1,4 +1,4 @@
-pub enum BscriptToken {
+pub enum BscriptTokenType {
     // symbols
     bsKhan, // SEMICOLON (end of line)
 
@@ -7,6 +7,11 @@ pub enum BscriptToken {
     bsDork, // minus
     bsKun, // multiply
     bsJaek, //divide 
+    
+    // misc symbols
+    bsKbeas, //comma 
+    bsJoch, // literally period
+    bsTmenhKadao, // idk how to call this its the ""
 
     //prims 
     bsLek, //ints
@@ -45,4 +50,11 @@ pub enum BscriptToken {
     bsJongYeyTha, // PRINT START
     bsJongYeyJengHa, // PRINT END
     bsJob, // EOF 
+}
+
+
+pub struct BscriptToken {
+    pub token_type: BscriptTokenType,
+    pub lexeme: String,
+    pub line: int64
 }
