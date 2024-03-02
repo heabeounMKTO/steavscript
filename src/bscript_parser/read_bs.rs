@@ -1,5 +1,5 @@
-use std::fs;
+use nom::{branch::alt,bytes::complete::tag ,character::complete::char, IResult};
 
-pub fn read_bscript(file_path: &str) -> String {
-    fs::read_to_string(file_path).expect(&format!("error reading file {:?}", &file_path))
+fn parse_bscript(input: &str) -> IResult<&str, &str> {
+    tag("jongYeyTha")(input)
 }

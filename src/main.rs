@@ -1,7 +1,6 @@
 mod bscript;
 mod bscript_parser;
 use bscript::implmode::{BelteiMode, RunBeltei};
-use bscript_parser::read_bs::read_bscript;
 use clap::Parser;
 use input_stream::InputStream;
 use std::io;

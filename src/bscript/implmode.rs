@@ -32,3 +32,4 @@ fn run(ayylmao: &str) -> Result<(), Error> {
     println!("{:?}", ayylmao);
     Ok(())
 }
+
