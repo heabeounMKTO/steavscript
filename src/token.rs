@@ -7,7 +7,7 @@ pub enum TokenType {
     RightParen,
     LeftBrace,
     RightBrace,
-    Comma, 
+    Comma,
     Dot,
     Minus,
     Plus,
@@ -16,19 +16,19 @@ pub enum TokenType {
     Star,
 
     // one or two char tokens
-    Bang,  // !
-    BangEqual, // != 
-    Equal, // =
-    EqualEqual, // ==
-    Greater, // >
+    Bang,         // !
+    BangEqual,    // !=
+    Equal,        // =
+    EqualEqual,   // ==
+    Greater,      // >
     GreaterEqual, // >=
-    Less, // <
-    LessEqual, // <=
-    
+    Less,         // <
+    LessEqual,    // <=
+
     // literals
     Identifier,
-    String {literal: String},
-    Number {literal: f64},
+    String { literal: String },
+    Number { literal: f64 },
 
     // keywords
     And,
@@ -48,25 +48,23 @@ pub enum TokenType {
     Var,
     While,
 
-
-    // end of fiels 
+    // end of fiels
     EOF,
 }
-
 
 #[derive(Debug, Clone)]
 pub struct Token {
     ttype: TokenType,
     lexeme: String,
-    line: i32
+    line: i32,
 }
 
-impl Token{
+impl Token {
     pub fn new(ttype: TokenType, lexeme: &str, line: i32) -> Self {
-       Self {
+        Self {
             ttype,
             lexeme: lexeme.to_string(),
-            line
-        } 
+            line,
+        }
     }
 }

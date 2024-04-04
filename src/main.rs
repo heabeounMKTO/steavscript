@@ -1,40 +1,38 @@
+mod error;
 mod scanner;
 mod token;
-mod error;
 
-use lazy_static::lazy_static;
-use token::TokenType;
 use anyhow::{Error, Result};
+use lazy_static::lazy_static;
 use scanner::Scanner;
-use std::io;
-use std::{env, fs};
 use std::collections::HashMap;
+use std::io;
 use std::process::exit;
-
+use std::{env, fs};
+use token::TokenType;
 
 lazy_static! {
     static ref KEYWORDS: HashMap<&'static str, TokenType> = {
-let keywords: HashMap<&'static str, TokenType> = HashMap::from([
-    ("ng", TokenType::And),
-    ("tnak", TokenType::Class),
-    ("minjengte", TokenType::Else),
-    ("ort", TokenType::False),
-    ("mukngea", TokenType::Fun),
-    ("somhab", TokenType::For),
-    ("ber", TokenType::If),
-    ("sone", TokenType::Nil),
-    ("reu", TokenType::Or),
-    ("jongyeytha", TokenType::Print),
-    ("talob", TokenType::Return),
-    ("super", TokenType::Super),
-    ("nis", TokenType::This),
-    ("ok", TokenType::True ),
-    ("akthe", TokenType::Var),
-    ("nvpel", TokenType::While)
-]);
-    keywords
+        let keywords: HashMap<&'static str, TokenType> = HashMap::from([
+            ("ng", TokenType::And),
+            ("tnak", TokenType::Class),
+            ("minjengte", TokenType::Else),
+            ("ort", TokenType::False),
+            ("mukngea", TokenType::Fun),
+            ("somhab", TokenType::For),
+            ("ber", TokenType::If),
+            ("sone", TokenType::Nil),
+            ("reu", TokenType::Or),
+            ("jongyeytha", TokenType::Print),
+            ("talob", TokenType::Return),
+            ("super", TokenType::Super),
+            ("nis", TokenType::This),
+            ("ok", TokenType::True),
+            ("akthe", TokenType::Var),
+            ("nvpeldae", TokenType::While),
+        ]);
+        keywords
     };
-
 }
 
 fn main() -> Result<(), Error> {
