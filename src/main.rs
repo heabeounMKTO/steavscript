@@ -1,6 +1,7 @@
 mod error;
 mod scanner;
 mod token;
+mod syntax;
 
 use anyhow::{Error, Result};
 use lazy_static::lazy_static;
@@ -55,9 +56,10 @@ fn run_file(path: &str) -> anyhow::Result<()> {
 
 fn run_prompt() -> Result<()> {
     let stdin = io::stdin();
+    println!("> bts_interacc");
     for line in stdin.lines() {
         run(line?).expect("error reading line!");
-        println!("> ");
+        println!("> bts_interacc");
     }
     Ok(())
 }
