@@ -120,6 +120,7 @@ impl Scanner {
                     error(
                         self.line,
                         "nhom ort skol tha ah neng saey ke te bro (jes c code ort neng yiiii)",
+                        "undefined expression!?"
                     )
                 }
             }
@@ -156,11 +157,11 @@ impl Scanner {
             }
             self.advance();
         }
-
         if self.is_at_end() {
             error(
                 self.line,
                 "jong yey tha bro ort bet string te ey? jam na ther oy thom thom os hz",
+                "end of line error" 
             );
         }
 
