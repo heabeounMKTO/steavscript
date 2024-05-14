@@ -54,9 +54,9 @@ pub enum TokenType {
 
 #[derive(Debug, Clone)]
 pub struct Token {
-    ttype: TokenType,
+    pub ttype: TokenType,
     pub lexeme: String,
-    line: i32,
+    pub line: i32,
 }
 
 impl Token {
@@ -65,6 +65,15 @@ impl Token {
             ttype,
             lexeme: lexeme.to_string(),
             line,
+        }
+    }
+}
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match &self.ttype {
+            TokenType::String { literal } => write!(f, "String {:?} {:?}", self.lexeme, literal),
+            TokenType::Number { literal } => write!(f, "Number {:?} {:?}", self.lexeme, literal),
+            _ => write!(f, "{:?} {:?}", self.ttype, self.lexeme),
         }
     }
 }

@@ -21,7 +21,8 @@ pub enum Expr {
 
 
 pub trait Visitor<R> {
-    fn visit_binary_expr(&self, left: &Expr , 
+    fn visit_binary_expr(&self, 
+                                left: &Expr , 
                                 operator: &Token, 
                                 right: &Expr) -> R;
     fn visit_grouping_expr(&self, expression: &Expr) -> R;
@@ -70,7 +71,6 @@ impl AstPrinter {
     pub fn print(&self, expr: Expr) -> String {
         expr.accept(self)
     }
-
 
     fn parenthesize(&self, name: String, exprs: Vec<&Expr>) -> String {
         let mut r = String::new();
