@@ -7,7 +7,7 @@ use std::io;
 pub enum Error {
     Io(io::Error),
     Parse,
-    Runtime{token: Token, message: String}
+    Runtime { token: Token, message: String },
 }
 
 pub fn parser_error(token: &Token, message: &str) {
@@ -28,18 +28,16 @@ impl fmt::Display for Error {
         match self {
             Error::Io(underlying) => write!(f, "IO ERROR: {}", underlying),
             Error::Parse => write!(f, "ParseError"),
-            Error::Runtime { message, .. } => write!(f, "RUNTIME ERROR {}", message)
+            Error::Runtime { message, .. } => write!(f, "RUNTIME ERROR {}", message),
         }
     }
 }
-
 
 impl std::error::Error for Error {
     fn description(&self) -> &str {
         "BTS ERROR LMAOOO"
     }
 }
-
 
 impl convert::From<io::Error> for Error {
     fn from(e: io::Error) -> Self {

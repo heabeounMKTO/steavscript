@@ -2,28 +2,26 @@ use crate::error::Error;
 use crate::syntax::{Expr, LiteralValue, Visitor};
 use crate::token::{Token, TokenType};
 
-
 enum Object {
     Boolean(bool),
     Null,
     Number(f64),
-    String(String)
+    String(String),
 }
 
 impl Object {
-    fn  equals(&self, other: &Object) -> bool {
-        match(self, other) {
+    fn equals(&self, other: &Object) -> bool {
+        match (self, other) {
             (Object::Null, Object::Null) => true,
             (_, Object::Null) => false,
             (Object::Null, _) => false,
             (Object::Boolean(left), Object::Boolean(right)) => left == right,
             (Object::Number(left), Object::Number(right)) => left == right,
             (Object::String(left), Object::String(right)) => left == right,
-            _ => false
+            _ => false,
         }
     }
 }
-
 
 pub struct Interpreter;
 
@@ -31,7 +29,7 @@ impl Interpreter {
     pub fn interpret(&self, expression: &Expr) -> Result<String, Error> {
         self.evaluate(expression).map(|value| self.stringify(value))
     }
-    
+
     fn is_truthy(&self, object: &Object) -> bool {
         match object {
             Object::Null => false,
@@ -41,27 +39,26 @@ impl Interpreter {
     }
 
     fn evaluate(&self, expression: &Expr) -> Result<Object, Error> {
-        expression.accept(self) 
+        expression.accept(self)
     }
 
     fn is_equal(&self, left: &Object, right: &Object) -> bool {
         left.equals(right)
     }
 
-
     fn stringify(&self, object: Object) -> String {
         match object {
             Object::Null => "nul".to_string(),
             Object::Number(n) => n.to_string(),
             Object::Boolean(b) => b.to_string(),
-            Object::String(s) => s
+            Object::String(s) => s,
         }
     }
-    
+
     fn number_operand_error<R>(&self, operator: &Token) -> Result<R, Error> {
         Err(Error::Runtime {
             token: operator.clone(),
-            message: "NUH-UH Operand MUST be a number".to_string()
+            message: "NUH-UH Operand MUST be a number".to_string(),
         })
     }
 }
@@ -163,4 +160,3 @@ impl Visitor<Object> for Interpreter {
         }
     }
 }
-

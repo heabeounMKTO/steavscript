@@ -1,6 +1,6 @@
+use crate::error::Error;
 use crate::token::Token;
 use std::fmt;
-use crate::error::Error;
 
 pub enum Expr {
     Binary {
@@ -67,8 +67,6 @@ impl Expr {
 
 pub struct AstPrinter;
 
-
-
 impl AstPrinter {
     pub fn print(&self, expr: Expr) -> Result<String, Error> {
         expr.accept(self)
@@ -83,13 +81,17 @@ impl AstPrinter {
             r.push_str(&e.accept(self)?);
         }
         r.push_str(")");
-Ok(r)
+        Ok(r)
     }
 }
 
-
 impl Visitor<String> for AstPrinter {
-    fn visit_binary_expr(&self, left: &Expr, operator: &Token, right: &Expr) -> Result<String, Error> {
+    fn visit_binary_expr(
+        &self,
+        left: &Expr,
+        operator: &Token,
+        right: &Expr,
+    ) -> Result<String, Error> {
         self.parenthesize(operator.lexeme.clone(), vec![left, right])
     }
 

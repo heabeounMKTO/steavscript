@@ -1,12 +1,12 @@
 mod error;
+mod interpreter;
 mod parser;
 mod scanner;
 mod syntax;
 mod token;
-mod interpreter;
 
-use interpreter::Interpreter;
 use error::Error;
+use interpreter::Interpreter;
 use lazy_static::lazy_static;
 use parser::Parser;
 use scanner::Scanner;
@@ -41,11 +41,9 @@ lazy_static! {
     };
 }
 
-
 struct Bts {
-    interpreter: Interpreter
+    interpreter: Interpreter,
 }
-
 
 impl Bts {
     fn new() -> Self {
@@ -69,7 +67,6 @@ impl Bts {
         Ok(())
     }
 
-
     fn run(&self, source: String) -> Result<(), Error> {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens();
@@ -84,19 +81,17 @@ impl Bts {
     }
 }
 
-
-
 fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     let args: Vec<String> = env::args().collect();
-    let lox = Bts::new();
+    let bt_ach = Bts::new();
     match args.as_slice() {
-        [_, file] => match lox.run_file(file) {
+        [_, file] => match bt_ach.run_file(file) {
             Ok(_) => (),
             Err(Error::Runtime { .. }) => exit(70),
             Err(Error::Parse) => exit(65),
             Err(Error::Io(_)) => unimplemented!(),
         },
-        [_] => lox.run_prompt()?,
+        [_] => bt_ach.run_prompt()?,
         _ => {
             eprintln!("Usage: bts [script]");
             exit(64)
