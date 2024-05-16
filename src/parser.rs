@@ -150,7 +150,6 @@ impl<'t> Parser<'t> {
                 right: Box::new(right),
             }
         }
-
         Ok(expr)
     }
     fn addition(&mut self) -> Result<Expr, Error> {
