@@ -2,6 +2,7 @@ use crate::error::error;
 use crate::token::{Token, TokenType};
 use crate::KEYWORDS;
 
+
 pub struct Scanner {
     source: String,
     tokens: Vec<Token>,
@@ -120,7 +121,7 @@ impl Scanner {
                     error(
                         self.line,
                         "nhom ort skol tha ah neng saey ke te bro (jes c code ort neng yiiii)",
-                        "undefined expression!?"
+                        "undefined expression!?",
                     )
                 }
             }
@@ -161,7 +162,7 @@ impl Scanner {
             error(
                 self.line,
                 "jong yey tha bro ort bet string te ey? jam na ther oy thom thom os hz",
-                "end of line error" 
+                "end of line error",
             );
         }
 

@@ -1,15 +1,18 @@
 mod error;
+mod parser;
 mod scanner;
-mod token;
 mod syntax;
+mod token;
 
 use anyhow::{Error, Result};
 use lazy_static::lazy_static;
+use parser::Parser;
 use scanner::Scanner;
 use std::collections::HashMap;
 use std::io;
 use std::process::exit;
 use std::{env, fs};
+use syntax::AstPrinter;
 use token::TokenType;
 
 lazy_static! {
@@ -25,7 +28,7 @@ lazy_static! {
             ("sone", TokenType::Nil),
             ("reu", TokenType::Or),
             ("jongyeytha", TokenType::Print),
-            ("talob", TokenType::Return),
+            ("morvenh", TokenType::Return),
             ("super", TokenType::Super),
             ("nis", TokenType::This),
             ("ok", TokenType::True),
