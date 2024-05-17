@@ -8,7 +8,7 @@ use std::fmt;
 use std::rc::Rc;
 
 pub struct Environment {
-    enclosing: Option<Rc<RefCell<Environment>>>,
+    enclosing: Option<Rc<RefCell<Environment>>>, // Parent
     values: HashMap<String, Object>,
 }
 
@@ -41,7 +41,7 @@ impl Environment {
             } else {
                 Err(Error::Runtime {
                     token: name.clone(),
-                    message: format!("Undefined variable '{}' ", key),
+                    message: format!("Undefined variable '{}'.", key),
                 })
             }
         }

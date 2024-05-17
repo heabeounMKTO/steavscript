@@ -1,5 +1,5 @@
 use crate::error::error;
-use crate::token::{Token, TokenType, };
+use crate::token::{Token, TokenType};
 use crate::KEYWORDS;
 
 pub struct Scanner {
@@ -108,8 +108,8 @@ impl Scanner {
             .get(self.start..self.current)
             .expect("Unexpected end.");
 
-        let ttype: TokenType = KEYWORDS.get(text).cloned().unwrap_or(TokenType::Identifier);
-        self.add_token(ttype);
+        let tpe: TokenType = KEYWORDS.get(text).cloned().unwrap_or(TokenType::Identifier);
+        self.add_token(tpe);
     }
 
     fn number(&mut self) {
@@ -199,11 +199,11 @@ impl Scanner {
         char_vec[self.current - 1]
     }
 
-    fn add_token(&mut self, ttype: TokenType) {
+    fn add_token(&mut self, tpe: TokenType) {
         let text = self
             .source
             .get(self.start..self.current)
             .expect("Source token is empty.");
-        self.tokens.push(Token::new(ttype, text, self.line))
+        self.tokens.push(Token::new(tpe, text, self.line))
     }
 }

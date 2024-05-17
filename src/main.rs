@@ -7,14 +7,16 @@ mod scanner;
 mod syntax;
 mod token;
 
+use lazy_static::lazy_static;
+
+
 use error::Error;
 use interpreter::Interpreter;
-use lazy_static::lazy_static;
 use parser::Parser;
 use scanner::Scanner;
 use std::collections::HashMap;
 use std::fs;
-use std::io;
+use std::io::{self, BufRead};
 use std::process::exit;
 use syntax::AstPrinter;
 use token::TokenType;
@@ -57,14 +59,13 @@ impl Bts {
 
     fn run_file(&mut self, path: &str) -> Result<(), Error> {
         let source = fs::read_to_string(path)?;
-
         self.run(source, false)
     }
 
     fn run_prompt(&mut self) -> Result<(), Error> {
         let stdin = io::stdin();
         println!("> bts_interacctive session (yoooo)");
-        for line in stdin.lines() {
+        for line in stdin.lock().lines() {
             self.run(line?, true).expect("error reading line!");
             println!("> bts_interacc");
         }
@@ -78,10 +79,10 @@ impl Bts {
             println!("[DEBUG] TOKEN : {:?}", token);
         }
         // CHECKS FOR BONG SLANH OUN
-        /* if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
+         if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
             println!("[FATAL] BONG_SLANH_OUN ERROR: na `bongSlanhOun`?!!!\nplease inlcude `bongSlanhOun` in the first line of the file!");
             panic!()
-        } */
+        } 
         let mut parser = Parser::new(tokens);
         let statements = parser.parse()?;
         self.interpreter.interpret(&statements)?;

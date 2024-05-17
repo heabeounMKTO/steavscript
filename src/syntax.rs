@@ -119,6 +119,7 @@ pub enum Stmt {
     Expression {
         expression: Expr,
     },
+    BongSlanhOun,
     If {
         condition: Expr,
         else_branch: Box<Option<Stmt>>,
@@ -152,6 +153,7 @@ impl Stmt {
             Stmt::Var { name, initializer } => visitor.visit_var_stmt(name, initializer),
             Stmt::While { condition, body } => visitor.visit_while_stmt(condition, body),
             Stmt::Null => unimplemented!(),
+            Stmt::BongSlanhOun => Ok(unimplemented!()) 
         }
     }
 }

@@ -14,7 +14,7 @@ impl Object {
             (Object::Null, _) => false,
             (Object::Boolean(left), Object::Boolean(right)) => left == right,
             (Object::Number(left), Object::Number(right)) => left == right,
-            (Object::String(left), Object::String(right)) => left == right,
+            (Object::String(left), Object::String(right)) => left.eq(right),
             _ => false,
         }
     }
