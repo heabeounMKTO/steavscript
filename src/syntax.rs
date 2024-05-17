@@ -1,19 +1,17 @@
 use crate::error::Error;
 use crate::token::Token;
 use std::fmt;
+
 #[derive(Debug, Clone)]
 pub enum Expr {
     Assign {
         name: Token,
-        value: Box<Expr>
+        value: Box<Expr>,
     },
     Binary {
         left: Box<Expr>,
         operator: Token,
         right: Box<Expr>,
-    },
-    Variable {
-        name: Token
     },
     Grouping {
         expression: Box<Expr>,
@@ -21,9 +19,17 @@ pub enum Expr {
     Literal {
         value: LiteralValue,
     },
+    Logical {
+        left: Box<Expr>,
+        operator: Token,
+        right: Box<Expr>,
+    },
     Unary {
         operator: Token,
         right: Box<Expr>,
+    },
+    Variable {
+        name: Token,
     },
 }
 
@@ -46,21 +52,130 @@ impl fmt::Display for LiteralValue {
     }
 }
 
+impl fmt::Display for Expr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
 
 impl Expr {
     pub fn accept<R>(&self, visitor: &mut dyn expr::Visitor<R>) -> Result<R, Error> {
         match self {
+            Expr::Assign { name, value } => visitor.visit_assign_expr(name, value),
             Expr::Binary {
                 left,
                 operator,
                 right,
-           } => visitor.visit_binary_expr(left, operator, right),
+            } => visitor.visit_binary_expr(left, operator, right),
             Expr::Grouping { expression } => visitor.visit_grouping_expr(expression),
             Expr::Literal { value } => visitor.visit_literal_expr(value),
+            Expr::Logical {
+                left,
+                operator,
+                right,
+            } => visitor.visit_logical_expr(left, operator, right),
             Expr::Unary { operator, right } => visitor.visit_unary_expr(operator, right),
-            Expr::Assign { name, value } => visitor.visit_assign_expr(name, value),
             Expr::Variable { name } => visitor.visit_variable_expr(name),
         }
+    }
+}
+
+pub mod expr {
+    use super::{Expr, LiteralValue};
+    use crate::error::Error;
+    use crate::token::Token;
+
+    pub trait Visitor<R> {
+        fn visit_assign_expr(&mut self, name: &Token, value: &Expr) -> Result<R, Error>;
+        fn visit_binary_expr(
+            &mut self,
+            left: &Expr,
+            operator: &Token,
+            right: &Expr,
+        ) -> Result<R, Error>;
+
+        /// Visit a grouping expression.
+        ///
+        /// # Arguments
+        ///
+        /// * `expression` - This is the *inner* expression of the grouping.
+        fn visit_grouping_expr(&mut self, expression: &Expr) -> Result<R, Error>;
+        fn visit_literal_expr(&self, value: &LiteralValue) -> Result<R, Error>;
+        fn visit_logical_expr(
+            &mut self,
+            left: &Expr,
+            operator: &Token,
+            right: &Expr,
+        ) -> Result<R, Error>;
+        fn visit_unary_expr(&mut self, operator: &Token, right: &Expr) -> Result<R, Error>;
+        fn visit_variable_expr(&mut self, name: &Token) -> Result<R, Error>;
+    }
+}
+
+pub enum Stmt {
+    Block {
+        statements: Vec<Stmt>,
+    },
+    Expression {
+        expression: Expr,
+    },
+    If {
+        condition: Expr,
+        else_branch: Box<Option<Stmt>>,
+        then_branch: Box<Stmt>,
+    },
+    Print {
+        expression: Expr,
+    },
+    Var {
+        name: Token,
+        initializer: Option<Expr>,
+    },
+    While {
+        condition: Expr,
+        body: Box<Stmt>,
+    },
+    Null, // TODO see how stmt is handled after synchronize
+}
+
+impl Stmt {
+    pub fn accept<R>(&self, visitor: &mut dyn stmt::Visitor<R>) -> Result<R, Error> {
+        match self {
+            Stmt::Block { statements } => visitor.visit_block_stmt(statements),
+            Stmt::Expression { expression } => visitor.visit_expression_stmt(expression),
+            Stmt::If {
+                condition,
+                else_branch,
+                then_branch,
+            } => visitor.visit_if_stmt(condition, else_branch, then_branch),
+            Stmt::Print { expression } => visitor.visit_print_stmt(expression),
+            Stmt::Var { name, initializer } => visitor.visit_var_stmt(name, initializer),
+            Stmt::While { condition, body } => visitor.visit_while_stmt(condition, body),
+            Stmt::Null => unimplemented!(),
+        }
+    }
+}
+
+pub mod stmt {
+    use super::{Expr, Stmt};
+    use crate::error::Error;
+    use crate::token::Token;
+
+    pub trait Visitor<R> {
+        fn visit_block_stmt(&mut self, statements: &Vec<Stmt>) -> Result<R, Error>;
+        //        fn visit_class_stmt(&self, Class stmt); TODO: Classes chapter
+        fn visit_expression_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
+        //        fn visit_function_stmt(&self, Function stmt); TODO: Functions chapter
+        fn visit_if_stmt(
+            &mut self,
+            condition: &Expr,
+            else_branch: &Option<Stmt>,
+            then_branch: &Stmt,
+        ) -> Result<R, Error>;
+        fn visit_print_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
+        //        fn visit_return_stmt(&self, Return stmt); TODO: Functions chapter
+        fn visit_var_stmt(&mut self, name: &Token, initializer: &Option<Expr>) -> Result<R, Error>;
+        fn visit_while_stmt(&mut self, condition: &Expr, body: &Stmt) -> Result<R, Error>;
     }
 }
 
@@ -98,14 +213,22 @@ impl expr::Visitor<String> for AstPrinter {
         self.parenthesize("group".to_string(), vec![expr])
     }
 
-    fn visit_literal_expr(&mut self, value: &LiteralValue) -> Result<String, Error> {
-        Ok(value.to_string())
+    fn visit_literal_expr(&self, value: &LiteralValue) -> Result<String, Error> {
+        Ok(value.to_string()) // check for null
+    }
+
+    fn visit_logical_expr(
+        &mut self,
+        left: &Expr,
+        operator: &Token,
+        right: &Expr,
+    ) -> Result<String, Error> {
+        self.parenthesize(operator.lexeme.clone(), vec![left, right])
     }
 
     fn visit_unary_expr(&mut self, operator: &Token, right: &Expr) -> Result<String, Error> {
         self.parenthesize(operator.lexeme.clone(), vec![right])
     }
-
 
     fn visit_variable_expr(&mut self, name: &Token) -> Result<String, Error> {
         Ok(name.lexeme.clone())
@@ -116,75 +239,32 @@ impl expr::Visitor<String> for AstPrinter {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::token::{Token, TokenType};
 
+    #[test]
+    fn test_printer() {
+        let expression = Expr::Binary {
+            left: Box::new(Expr::Unary {
+                operator: Token::new(TokenType::Minus, "-", 1),
+                right: Box::new(Expr::Literal {
+                    value: LiteralValue::Number(123f64),
+                }),
+            }),
+            operator: Token::new(TokenType::Star, "*", 1),
+            right: Box::new(Expr::Grouping {
+                expression: Box::new(Expr::Literal {
+                    value: LiteralValue::Number(45.67f64),
+                }),
+            }),
+        };
+        let mut printer = AstPrinter;
 
-pub mod expr {
-    use super::{Expr, LiteralValue};
-    use crate::error::Error;
-    use crate::token::Token;
-
-    pub trait Visitor<R> {
-        fn visit_binary_expr(&mut self, left: &Expr, operator: &Token, right: &Expr) -> Result<R, Error>;
-        /// Visit a grouping expression.
-        ///
-        /// # Arguments
-        ///
-        /// * `expression` - This is the *inner* expression of the grouping.
-        fn visit_grouping_expr(&mut self, expression: &Expr) -> Result<R, Error>;
-        fn visit_literal_expr(&mut self, value: &LiteralValue) -> Result<R, Error>;
-        fn visit_unary_expr(&mut self, operator: &Token, right: &Expr) -> Result<R, Error>;
-        fn visit_variable_expr(&mut self, name: &Token) -> Result<R, Error>;
-        fn visit_assign_expr(&mut self, name: &Token, value: &Expr) -> Result<R, Error>;
-    }
-    
-}
-
-
-pub enum Stmt {
-    Block {
-        statements: Vec<Stmt>,
-    },
-    Expression {
-        expression: Expr,
-    },
-    Print {
-        expression: Expr
-    },
-    Var {
-        name: Token,
-        initializer: Option<Expr>
-    },
-    Null,
-}
-
-
-pub mod stmt {
-    use super::{Expr, Stmt};
-    use crate::error::Error;
-    use crate::token::Token;
-
-    pub trait Visitor<R> {
-        fn visit_block_stmt(&mut self, statements: &Vec<Stmt>) -> Result<R, Error>;
-        //        fn visit_class_stmt(&self, Class stmt); TODO: Classes chapter
-        fn visit_expression_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
-        //        fn visit_function_stmt(&self, Function stmt); TODO: Functions chapter
-        //        fn visit_if_stmt(&self, If stmt); TODO: Control Flows chapter
-        fn visit_print_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
-        //        fn visit_return_stmt(&self, Return stmt); TODO: Functions chapter
-        fn visit_var_stmt(&mut self, name: &Token, initializer: &Option<Expr>) -> Result<R, Error>;
-        //        fn visit_while_stmt(&self, While stmt); TODO: Control Flows chapter
+        assert_eq!(
+            printer.print(expression).unwrap(),
+            "(* (- 123) (group 45.67))"
+        );
     }
 }
-
-impl Stmt {
-    pub fn accept<R>(&self, visitor: &mut dyn stmt::Visitor<R>) -> Result<R, Error> {
-        match self {
-            Stmt::Block { statements } => visitor.visit_block_stmt(statements), 
-            Stmt::Expression { expression } => visitor.visit_expression_stmt(expression),
-            Stmt::Print {expression} => visitor.visit_print_stmt(expression),
-            Stmt::Var { name, initializer } => visitor.visit_var_stmt(name, initializer),
-            Stmt::Null => unimplemented!(),
-        }
-    }
-}
-

@@ -1,5 +1,5 @@
-bongSlanhOun
-jongyeytha "kdouy ayeas"
-akthe kdet_thom = 2
-akthe kdet_toch = 3.0
-akthe kdet_kdal = kdet_toch + kdet_thom
+akthe joyknea = 2;
+akthe jeaknoy = 3;
+
+
+jongyeytha "joyknea";

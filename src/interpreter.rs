@@ -1,5 +1,5 @@
-use crate::error::Error;
 use crate::env::Environment;
+use crate::error::Error;
 use crate::object::Object;
 use crate::syntax::{expr, stmt};
 use crate::syntax::{Expr, LiteralValue, Stmt};
@@ -7,8 +7,6 @@ use crate::token::{Token, TokenType};
 
 use std::cell::RefCell;
 use std::rc::Rc;
-
-
 
 pub struct Interpreter {
     environment: Rc<RefCell<Environment>>,
@@ -27,13 +25,21 @@ impl Interpreter {
         }
         Ok(())
     }
-    
+
+    fn evaluate(&mut self, expression: &Expr) -> Result<Object, Error> {
+        expression.accept(self)
+    }
+
     fn execute(&mut self, statement: &Stmt) -> Result<(), Error> {
         statement.accept(self)
     }
 
-    fn execute_block(&mut self, statements: &Vec<Stmt>, environment: Rc<RefCell<Environment>>) -> Result<(), Error>{
-        let previous = self.environment.clone();    
+    fn execute_block(
+        &mut self,
+        statements: &Vec<Stmt>,
+        environment: Rc<RefCell<Environment>>,
+    ) -> Result<(), Error> {
+        let previous = self.environment.clone();
         let steps = || -> Result<(), Error> {
             self.environment = environment;
             for statement in statements {
@@ -46,7 +52,6 @@ impl Interpreter {
         result
     }
 
-        
     fn is_truthy(&self, object: &Object) -> bool {
         match object {
             Object::Null => false,
@@ -55,27 +60,24 @@ impl Interpreter {
         }
     }
 
-    fn evaluate(&mut self, expression: &Expr) -> Result<Object, Error> {
-        expression.accept(self)
-    }
-
     fn is_equal(&self, left: &Object, right: &Object) -> bool {
         left.equals(right)
     }
 
     fn stringify(&self, object: Object) -> String {
         match object {
-            Object::Null => "nul".to_string(),
+            Object::Null => "nil".to_string(),
             Object::Number(n) => n.to_string(),
             Object::Boolean(b) => b.to_string(),
             Object::String(s) => s,
         }
     }
 
+    /// Equivalent to checkNumberOperands
     fn number_operand_error<R>(&self, operator: &Token) -> Result<R, Error> {
         Err(Error::Runtime {
             token: operator.clone(),
-            message: "NUH-UH Operand MUST be a number".to_string(),
+            message: "Operand must be a number.".to_string(),
         })
     }
 }
@@ -155,13 +157,33 @@ impl expr::Visitor<Object> for Interpreter {
         self.evaluate(expr)
     }
 
-    fn visit_literal_expr(&mut self, value: &LiteralValue) -> Result<Object, Error> {
+    fn visit_literal_expr(&self, value: &LiteralValue) -> Result<Object, Error> {
         match value {
             LiteralValue::Boolean(b) => Ok(Object::Boolean(b.clone())),
             LiteralValue::Null => Ok(Object::Null),
             LiteralValue::Number(n) => Ok(Object::Number(n.clone())),
             LiteralValue::String(s) => Ok(Object::String(s.clone())),
         }
+    }
+
+    fn visit_logical_expr(
+        &mut self,
+        left: &Expr,
+        operator: &Token,
+        right: &Expr,
+    ) -> Result<Object, Error> {
+        let l = self.evaluate(left)?;
+
+        if operator.ttype == TokenType::Or {
+            if self.is_truthy(&l) {
+                return Ok(l);
+            }
+        } else {
+            if !self.is_truthy(&l) {
+                return Ok(l);
+            }
+        }
+        self.evaluate(right)
     }
 
     fn visit_unary_expr(&mut self, operator: &Token, right: &Expr) -> Result<Object, Error> {
@@ -176,7 +198,7 @@ impl expr::Visitor<Object> for Interpreter {
             _ => unreachable!(), // TODO: fail if right is not a number.
         }
     }
-    
+
     fn visit_variable_expr(&mut self, name: &Token) -> Result<Object, Error> {
         self.environment.borrow().get(name)
     }
@@ -187,7 +209,6 @@ impl expr::Visitor<Object> for Interpreter {
         Ok(v)
     }
 }
-
 
 impl stmt::Visitor<()> for Interpreter {
     fn visit_block_stmt(&mut self, statements: &Vec<Stmt>) -> Result<(), Error> {
@@ -203,6 +224,22 @@ impl stmt::Visitor<()> for Interpreter {
         Ok(())
     }
 
+    fn visit_if_stmt(
+        &mut self,
+        condition: &Expr,
+        else_branch: &Option<Stmt>,
+        then_branch: &Stmt,
+    ) -> Result<(), Error> {
+        let condition_value = self.evaluate(condition)?;
+        if self.is_truthy(&condition_value) {
+            self.execute(then_branch)?;
+        } else if let Some(other) = else_branch {
+            self.execute(other)?;
+        }
+
+        Ok(())
+    }
+
     fn visit_print_stmt(&mut self, expression: &Expr) -> Result<(), Error> {
         let value = self.evaluate(expression)?;
         println!("{}", self.stringify(value));
@@ -215,8 +252,19 @@ impl stmt::Visitor<()> for Interpreter {
             .map(|i| self.evaluate(i))
             .unwrap_or(Ok(Object::Null))?;
 
-        self.environment.borrow_mut().define(name.lexeme.clone(), value);
+        self.environment
+            .borrow_mut()
+            .define(name.lexeme.clone(), value);
+        Ok(())
+    }
+
+    fn visit_while_stmt(&mut self, condition: &Expr, body: &Stmt) -> Result<(), Error> {
+        let mut value = self.evaluate(condition)?;
+        while self.is_truthy(&value) {
+            self.execute(body)?;
+            value = self.evaluate(condition)?
+        }
+
         Ok(())
     }
 }
-

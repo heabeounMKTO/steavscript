@@ -2,31 +2,28 @@ use crate::error::Error;
 use crate::object::Object;
 use crate::token::Token;
 
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
-
 pub struct Environment {
     enclosing: Option<Rc<RefCell<Environment>>>,
-    values: HashMap<String, Object>
+    values: HashMap<String, Object>,
 }
 
 impl Environment {
-
     pub fn new() -> Self {
         Environment {
-            enclosing: None, 
-            values: HashMap::new()
+            enclosing: None,
+            values: HashMap::new(),
         }
     }
 
     pub fn from(enclosing: &Rc<RefCell<Environment>>) -> Self {
         Environment {
             enclosing: Some(Rc::clone(enclosing)),
-            values: HashMap::new()
+            values: HashMap::new(),
         }
     }
 
@@ -44,12 +41,11 @@ impl Environment {
             } else {
                 Err(Error::Runtime {
                     token: name.clone(),
-                    message: format!("Undefined variable '{}' ",  key),
+                    message: format!("Undefined variable '{}' ", key),
                 })
             }
         }
     }
-
 
     pub fn assign(&mut self, name: &Token, value: Object) -> Result<(), Error> {
         let key = &*name.lexeme;

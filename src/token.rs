@@ -50,16 +50,15 @@ pub enum TokenType {
 
     // end of fiels
     EOF,
-     
-     /* 
-    * literally does nothing 
+
+    /*
+    * literally does nothing
      but BTS will refuse to run without
      you writing bongSlanhOun on the first line
-     SMH (i literally made this choice) 
-    putting this here because i might shoot 
+     SMH (i literally made this choice)
+    putting this here because i might shoot
     myself in the foot in a later date
     */
-    
     BongSlanhOun,
 }
 
