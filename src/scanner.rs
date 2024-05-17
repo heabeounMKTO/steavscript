@@ -2,6 +2,8 @@ use crate::error::error;
 use crate::token::{Token, TokenType};
 use crate::KEYWORDS;
 
+
+#[derive(Debug)]
 pub struct Scanner {
     source: String,
     tokens: Vec<Token>,

@@ -4,6 +4,9 @@ mod parser;
 mod scanner;
 mod syntax;
 mod token;
+mod env;
+mod object;
+
 
 use error::Error;
 use interpreter::Interpreter;
@@ -13,13 +16,17 @@ use scanner::Scanner;
 use std::collections::HashMap;
 use std::io;
 use std::process::exit;
-use std::{env, fs};
+use std::fs;
 use syntax::AstPrinter;
 use token::TokenType;
+
+
+
 
 lazy_static! {
     static ref KEYWORDS: HashMap<&'static str, TokenType> = {
         let keywords: HashMap<&'static str, TokenType> = HashMap::from([
+            ("bongSlanhOun", TokenType::BongSlanhOun),
             ("ng", TokenType::And),
             ("tnak", TokenType::Class),
             ("minjengte", TokenType::Else),
@@ -48,42 +55,45 @@ struct Bts {
 impl Bts {
     fn new() -> Self {
         Bts {
-            interpreter: Interpreter,
+            interpreter: Interpreter::new(),
         }
     }
 
-    fn run_file(&self, path: &str) -> Result<(), Error> {
+    fn run_file(&mut self, path: &str) -> Result<(), Error> {
         let source = fs::read_to_string(path)?;
-        self.run(source)
+         
+        self.run(source, false)
     }
 
-    fn run_prompt(&self) -> Result<(), Error> {
+    fn run_prompt(&mut self) -> Result<(), Error> {
         let stdin = io::stdin();
-        println!("> bts_interacc");
+        println!("> bts_interacctive session (yoooo)");
         for line in stdin.lines() {
-            self.run(line?).expect("error reading line!");
+            self.run(line?, true).expect("error reading line!");
             println!("> bts_interacc");
         }
         Ok(())
     }
 
-    fn run(&self, source: String) -> Result<(), Error> {
+    fn run(&mut self, source: String, prompt_mode: bool) -> Result<(), Error> {
         let mut scanner = Scanner::new(source);
         let tokens = scanner.scan_tokens();
-        for token in tokens {
-            println!("{:?}", &token);
+         
+        // CHECKS FOR BONG SLANH OUN 
+        if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
+            println!("[FATAL] BONG_SLANH_OUN ERROR: na `bongSlanhOun`?!!!\nplease inlcude `bongSlanhOun` in the first line of the file!");
+            panic!()
         }
         let mut parser = Parser::new(tokens);
-        if let Some(expression) = parser.parse() {
-            println!("{}", self.interpreter.interpret(&expression)?);
-        }
+        let statements = parser.parse()?;
+        self.interpreter.interpret(&statements)?;
         Ok(())
     }
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
-    let args: Vec<String> = env::args().collect();
-    let bt_ach = Bts::new();
+    let args: Vec<String> = std::env::args().collect();
+    let mut bt_ach = Bts::new();
     match args.as_slice() {
         [_, file] => match bt_ach.run_file(file) {
             Ok(_) => (),
