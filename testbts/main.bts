@@ -1,5 +1,6 @@
 akthe a = 1;
 akthe time = 30;
+
 nvpeldae (a < time) {
   a = a + 1;
   jongyeytha a;

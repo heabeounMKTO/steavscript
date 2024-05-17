@@ -18,7 +18,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::{self, BufRead};
 use std::process::exit;
-use syntax::AstPrinter;
 use token::TokenType;
 
 lazy_static! {
@@ -29,7 +28,7 @@ lazy_static! {
             ("tnak", TokenType::Class), // 
             ("minjengte", TokenType::Else), // 
             ("ort", TokenType::False), // 
-            ("mukngea", TokenType::Fun), // 
+            ("rupamun", TokenType::Fun), // 
             ("somhab", TokenType::For), // 
             ("ber", TokenType::If), // 
             ("sone", TokenType::Nil), // 
