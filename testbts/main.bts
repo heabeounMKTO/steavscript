@@ -1,3 +1,6 @@
-bongSlanhOun;
-akthe ass = 1000;
-jongyeytha ass;
+akthe a = 1;
+akthe time = 30;
+nvpeldae (a < time) {
+  a = a + 1;
+  jongyeytha a;
+}

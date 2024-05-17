@@ -79,10 +79,10 @@ impl Bts {
             println!("[DEBUG] TOKEN : {:?}", token);
         }
         // CHECKS FOR BONG SLANH OUN
-         if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
+         /* if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
             println!("[FATAL] BONG_SLANH_OUN ERROR: na `bongSlanhOun`?!!!\nplease inlcude `bongSlanhOun` in the first line of the file!");
             panic!()
-        } 
+        }  */
         let mut parser = Parser::new(tokens);
         let statements = parser.parse()?;
         self.interpreter.interpret(&statements)?;
