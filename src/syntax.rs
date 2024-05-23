@@ -119,7 +119,9 @@ pub enum Stmt {
     Expression {
         expression: Expr,
     },
-    BongSlanhOun,
+    BongSlanhOun {
+        slanh_man_ort: Expr
+    },
     If {
         condition: Expr,
         else_branch: Box<Option<Stmt>>,
@@ -153,7 +155,7 @@ impl Stmt {
             Stmt::Var { name, initializer } => visitor.visit_var_stmt(name, initializer),
             Stmt::While { condition, body } => visitor.visit_while_stmt(condition, body),
             Stmt::Null => unimplemented!(),
-            Stmt::BongSlanhOun => Ok(unimplemented!()) 
+            Stmt::BongSlanhOun {slanh_man_ort} => visitor.visit_bong_slanh_oun(slanh_man_ort),
         }
     }
 }
@@ -168,6 +170,7 @@ pub mod stmt {
         //        fn visit_class_stmt(&self, Class stmt); TODO: Classes chapter
         fn visit_expression_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
         //        fn visit_function_stmt(&self, Function stmt); TODO: Functions chapter
+        fn visit_bong_slanh_oun(&mut self, expression: &Expr) -> Result<R, Error>;
         fn visit_if_stmt(
             &mut self,
             condition: &Expr,

@@ -239,7 +239,9 @@ impl stmt::Visitor<()> for Interpreter {
 
         Ok(())
     }
-
+    fn visit_bong_slanh_oun(&mut self, expression: &Expr) -> Result<(), Error> {
+        Ok(())
+    }
     fn visit_print_stmt(&mut self, expression: &Expr) -> Result<(), Error> {
         let value = self.evaluate(expression)?;
         println!("{}", self.stringify(value));

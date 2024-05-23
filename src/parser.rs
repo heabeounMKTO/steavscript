@@ -67,7 +67,11 @@ impl<'t> Parser<'t> {
             Ok(Stmt::Block {
                 statements: self.block()?,
             })
-        } else {
+
+        }else if matches!(self, TokenType::BongSlanhOun){
+            self.bong_slanh_oun()
+        } 
+        else {
             self.expression_statement()
         }
     }
@@ -146,7 +150,11 @@ impl<'t> Parser<'t> {
         self.consume(TokenType::Semicolon, "Expect ';' after value.")?;
         Ok(Stmt::Print { expression: value })
     }
-
+    fn bong_slanh_oun(&mut self) -> Result<Stmt, Error> {
+        let value = self.expression()?;
+        self.consume(TokenType::Semicolon, "mex ban tha sl ke hz ort dak ; jeng :< ")?;
+        Ok(Stmt::BongSlanhOun { slanh_man_ort: value })
+    }
     fn var_declaration(&mut self) -> Result<Stmt, Error> {
         let name = self.consume(TokenType::Identifier, "Expect variable name.")?;
 
@@ -305,6 +313,7 @@ impl<'t> Parser<'t> {
                 | TokenType::If
                 | TokenType::While
                 | TokenType::Print
+                | TokenType::BongSlanhOun
                 | TokenType::Return => return,
                 _ => self.advance(),
             };
@@ -387,7 +396,6 @@ impl<'t> Parser<'t> {
             self.primary()
         }
     }
-
 
     fn primary(&mut self) -> Result<Expr, Error> {
         // We don't use matches!() here since we want to extract the literals.
