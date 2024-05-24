@@ -8,6 +8,11 @@ pub enum Expr {
         name: Token,
         value: Box<Expr>,
     },
+    Call {
+        callee: Box<Expr>, 
+        paren: Token,
+        arguments: Vec<Expr>
+    },
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -74,6 +79,11 @@ impl Expr {
                 operator,
                 right,
             } => visitor.visit_logical_expr(left, operator, right),
+            Expr::Call {
+                callee,
+                paren,
+            arguments,
+            } => visitor.visit_call_expr(callee, paren, arguments),
             Expr::Unary { operator, right } => visitor.visit_unary_expr(operator, right),
             Expr::Variable { name } => visitor.visit_variable_expr(name),
         }
@@ -108,11 +118,27 @@ pub mod expr {
             right: &Expr,
         ) -> Result<R, Error>;
         fn visit_unary_expr(&mut self, operator: &Token, right: &Expr) -> Result<R, Error>;
+                fn visit_call_expr(
+            &mut self,
+            callee: &Expr,
+            paren: &Token,
+            arguments: &Vec<Expr>,
+        ) -> Result<R, Error>;
         fn visit_variable_expr(&mut self, name: &Token) -> Result<R, Error>;
     }
 }
 
+#[derive(Clone)]
 pub enum Stmt {
+    Function {
+        name: Token,
+        params: Vec<Token>,
+        body: Vec<Stmt>
+    },
+    Return {
+        keyword: Token,
+        value: Option<Expr>
+    },
     Block {
         statements: Vec<Stmt>,
     },
@@ -120,7 +146,7 @@ pub enum Stmt {
         expression: Expr,
     },
     BongSlanhOun {
-        slanh_man_ort: Expr
+        slanh_man_ort: Expr,
     },
     If {
         condition: Expr,
@@ -155,7 +181,9 @@ impl Stmt {
             Stmt::Var { name, initializer } => visitor.visit_var_stmt(name, initializer),
             Stmt::While { condition, body } => visitor.visit_while_stmt(condition, body),
             Stmt::Null => unimplemented!(),
-            Stmt::BongSlanhOun {slanh_man_ort} => visitor.visit_bong_slanh_oun(slanh_man_ort),
+            Stmt::Function { name, params, body } => {visitor.visit_function_stmt(name, params, body)},
+            Stmt::Return {keyword, value} => visitor.visit_return_stmt(keyword, value),
+            Stmt::BongSlanhOun { slanh_man_ort } => visitor.visit_bong_slanh_oun(slanh_man_ort),
         }
     }
 }
@@ -178,6 +206,8 @@ pub mod stmt {
             then_branch: &Stmt,
         ) -> Result<R, Error>;
         fn visit_print_stmt(&mut self, expression: &Expr) -> Result<R, Error>;
+        fn visit_function_stmt(&mut self, name: &Token, params: &Vec<Token>, body: &Vec<Stmt>) -> Result<R, Error>;
+        fn visit_return_stmt(&mut self, keyword: &Token, value: &Option<Expr>) -> Result<R, Error>;
         //        fn visit_return_stmt(&self, Return stmt); TODO: Functions chapter
         fn visit_var_stmt(&mut self, name: &Token, initializer: &Option<Expr>) -> Result<R, Error>;
         fn visit_while_stmt(&mut self, condition: &Expr, body: &Stmt) -> Result<R, Error>;
@@ -195,7 +225,7 @@ impl AstPrinter {
         let mut r = String::new();
         r.push_str("(");
         r.push_str(&name);
-        for e in &exprs {
+        for e in exprs {
             r.push_str(" ");
             r.push_str(&e.accept(self)?);
         }
@@ -205,6 +235,14 @@ impl AstPrinter {
 }
 
 impl expr::Visitor<String> for AstPrinter {
+    fn visit_call_expr(
+        &mut self,
+        callee: &Expr,
+        paren: &Token,
+        arguments: &Vec<Expr>,
+    ) -> Result<String, Error> {
+        unimplemented!()
+    }
     fn visit_binary_expr(
         &mut self,
         left: &Expr,

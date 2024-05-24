@@ -1,5 +1,6 @@
 mod env;
 mod error;
+mod function;
 mod interpreter;
 mod object;
 mod parser;
@@ -7,9 +8,9 @@ mod scanner;
 mod syntax;
 mod token;
 
-use lazy_static::lazy_static;
 use error::Error;
 use interpreter::Interpreter;
+use lazy_static::lazy_static;
 use parser::Parser;
 use scanner::Scanner;
 use std::collections::HashMap;
@@ -22,22 +23,22 @@ lazy_static! {
     static ref KEYWORDS: HashMap<&'static str, TokenType> = {
         let keywords: HashMap<&'static str, TokenType> = HashMap::from([
             ("bongSlanhOun", TokenType::BongSlanhOun),
-            ("ng", TokenType::And), //
-            ("tnak", TokenType::Class), //
-            ("minjengte", TokenType::Else), //
-            ("ort", TokenType::False), //
-            ("rupamun", TokenType::Fun), //
-            ("somhab", TokenType::For), //
-            ("ber", TokenType::If), //
-            ("sone", TokenType::Nil), //
-            ("reu", TokenType::Or), //
-            ("jongyeytha", TokenType::Print), //
-            ("morvenh", TokenType::Return), //
-            ("super", TokenType::Super), //
-            ("nis", TokenType::This), //
-            ("ok", TokenType::True), //
-            ("akthe", TokenType::Var), //
-            ("nvpeldae", TokenType::While), //
+            ("ng",           TokenType::And), //
+            ("tnak",         TokenType::Class), //
+            ("minjengte",    TokenType::Else), //
+            ("ort",          TokenType::False), //
+            ("rupamun",      TokenType::Fun), //
+            ("somhab",       TokenType::For), //
+            ("ber",          TokenType::If), //
+            ("sone",         TokenType::Nil), //
+            ("reu",          TokenType::Or), //
+            ("jongyeytha",   TokenType::Print), //
+            ("morvenh",      TokenType::Return), //
+            ("super",        TokenType::Super), //
+            ("nis",          TokenType::This), //
+            ("ok",           TokenType::True), //
+            ("akthe",        TokenType::Var), //
+            ("nvpeldae",     TokenType::While), //
         ]);
         keywords
     };
@@ -78,10 +79,10 @@ impl Bts {
         // }
 
         // CHECKS FOR BONG SLANH OUN
-        if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false{
+        if tokens[0].ttype != TokenType::BongSlanhOun && prompt_mode == false {
             println!("[FATAL] BONG_SLANH_OUN ERROR: na `bongSlanhOun`?!!!\nplease inlcude `bongSlanhOun` in the first line of the file!");
             panic!()
-        } 
+        }
         let mut parser = Parser::new(tokens);
         let statements = parser.parse()?;
         self.interpreter.interpret(&statements)?;
@@ -95,6 +96,7 @@ fn main() -> Result<(), Box<dyn std::error::Error + 'static>> {
     match args.as_slice() {
         [_, file] => match bt_ach.run_file(file) {
             Ok(_) => (),
+            Err(Error::Return { .. }) => unreachable!(),
             Err(Error::Runtime { .. }) => exit(70),
             Err(Error::Parse) => exit(65),
             Err(Error::Io(_)) => unimplemented!(),

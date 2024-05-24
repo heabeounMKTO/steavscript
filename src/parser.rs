@@ -41,7 +41,10 @@ impl<'t> Parser<'t> {
     fn declaration(&mut self) -> Result<Stmt, Error> {
         let statement = if matches!(self, TokenType::Var) {
             self.var_declaration()
-        } else {
+        } else if matches!(self, TokenType::Fun){
+            self.function("function")
+        } 
+        else {
             self.statement()
         };
 
@@ -61,21 +64,54 @@ impl<'t> Parser<'t> {
             self.if_statement()
         } else if matches!(self, TokenType::Print) {
             self.print_statement()
-        } else if matches!(self, TokenType::While) {
+        } else if matches!(self, TokenType::Return) {
+            self.return_statement()
+        } 
+
+        else if matches!(self, TokenType::While) {
             self.while_statement()
         } else if matches!(self, TokenType::LeftBrace) {
             Ok(Stmt::Block {
                 statements: self.block()?,
             })
-
-        }else if matches!(self, TokenType::BongSlanhOun){
+        } else if matches!(self, TokenType::BongSlanhOun) {
             self.bong_slanh_oun()
-        } 
-        else {
+        } else {
             self.expression_statement()
         }
     }
+   fn function(&mut self, kind: &str) -> Result<Stmt, Error> {
+        let name = self.consume(
+            TokenType::Identifier,
+            format!("Expect {} name.", kind).as_str(),
+        )?;
+        self.consume(
+            TokenType::LeftParen,
+            format!("Expect '(' after {} name.", kind).as_str(),
+        )?;
+        let mut params: Vec<Token> = Vec::new();
+        if !self.check(TokenType::RightParen) {
+            loop {
+                if params.len() >= 255 {
+                    // We are not returning an error here.
+                    self.error(self.peek(), "Cannot have more than 255 parameters.");
+                }
+                params.push(self.consume(TokenType::Identifier, "Expect parameter name.")?);
 
+                if !matches!(self, TokenType::Comma) {
+                    break;
+                }
+            }
+        }
+        self.consume(TokenType::RightParen, "Expect ')' after parameters.")?;
+
+        self.consume(
+            TokenType::LeftBrace,
+            format!("Expect '{{' before {} body.", kind).as_str(),
+        )?;
+        let body = self.block()?;
+        Ok(Stmt::Function { name, params, body })
+    }
     fn for_statement(&mut self) -> Result<Stmt, Error> {
         self.consume(TokenType::LeftParen, "Expect '(' after 'for'.")?;
 
@@ -125,7 +161,18 @@ impl<'t> Parser<'t> {
 
         Ok(body)
     }
+    fn return_statement(&mut self) -> Result<Stmt, Error> {
+        let keyword: Token = self.previous().clone();
+        println!("keyword: {}", keyword);
+        let value = if !self.check(TokenType::Semicolon) {
+            Some(self.expression()?)
+        } else {
+            None
+        };
 
+        self.consume(TokenType::Semicolon, "Expect ';' after return values.")?;
+        Ok(Stmt::Return { keyword, value })
+    }
     fn if_statement(&mut self) -> Result<Stmt, Error> {
         self.consume(TokenType::LeftParen, "Expect '(' after 'if'.")?;
         let condition = self.expression()?;
@@ -152,8 +199,13 @@ impl<'t> Parser<'t> {
     }
     fn bong_slanh_oun(&mut self) -> Result<Stmt, Error> {
         let value = self.expression()?;
-        self.consume(TokenType::Semicolon, "mex ban tha sl ke hz ort dak ; jeng :< ")?;
-        Ok(Stmt::BongSlanhOun { slanh_man_ort: value })
+        self.consume(
+            TokenType::Semicolon,
+            "mex ban tha sl ke hz ort dak ; jeng :< ",
+        )?;
+        Ok(Stmt::BongSlanhOun {
+            slanh_man_ort: value,
+        })
     }
     fn var_declaration(&mut self) -> Result<Stmt, Error> {
         let name = self.consume(TokenType::Identifier, "Expect variable name.")?;

@@ -1,3 +1,4 @@
+use crate::object::Object;
 use std::convert;
 use std::fmt;
 use std::io;
@@ -25,6 +26,7 @@ pub fn parser_error(token: &Token, message: &str) {
 pub enum Error {
     Io(io::Error),
     Parse,
+    Return { value: Object },
     Runtime { token: Token, message: String },
 }
 
@@ -33,6 +35,7 @@ impl fmt::Display for Error {
         match self {
             Error::Io(underlying) => write!(f, "IoError {}", underlying),
             Error::Parse => write!(f, "ParseError"),
+            Error::Return { value } => write!(f, "Return {:?}", value),
             Error::Runtime { message, .. } => write!(f, "RuntimeError {}", message),
         }
     }
