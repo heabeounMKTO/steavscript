@@ -1,6 +1,6 @@
-# BetielScript (bts)
+# SteavScript
 
-BetielScript is a small tree-walking interpreter written in Rust. It implements a
+SteavScript is a small tree-walking interpreter written in Rust. It implements a
 [Lox](https://craftinginterpreters.com/)-style scripting language, but with
 Khmer-inspired keywords instead of the usual English ones — variables use `akthe`
 instead of `var`, loops use `somhab` instead of `for`, and so on.
